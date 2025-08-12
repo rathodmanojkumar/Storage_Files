@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 curdt=`date +%d-%m-%Y`
@@ -73,12 +72,12 @@ install_naps() {
         sudo apt install -y naps2
         log "${bold_green}NAPS2 installation completed${reset}" true
     else
-        echo "Installation canceled by user"
-    fi
+        echo "Installation is Cancelled by user"
+    fi        
 }
 
 install_epson() {
-    echo "This will Install Epson Driver"
+    echo "This will Install Epson Driver "
     if confirm; then
         sudo apt update
         sudo apt install -y lsb lsb-core
@@ -103,35 +102,36 @@ install_fijustu() {
 }
 
 install_apps() {
-    echo "Installing Golden_Dictionary, Proxykey, Dolphin File Explorer, Clipboard, Net-tools, OpenSSH-server"
+    echo "In this Installation following apps will be installed:"
+    echo -e "Golden_Dictionary\nProxykey\nDolphine File explorer\nClipboard\nNet-tools\nOpenSSH-server"
     if confirm; then
         sudo apt update
         sudo apt install -y diodon goldendict goldendict-wordnet openssh-server net-tools dolphin
         log "${bold_green}Successfully installed apps${reset}" true
     else
         echo "Installation canceled by user"
-    fi
+    fi 
 }
 
 install_proxykey() {
-    echo "Installing or updating Proxykey"
+    echo "This will install or update Proxykey"
     if confirm; then
         zip_files
         sudo dpkg -i ./files/proxkey_ubantu.deb
         log "${bold_green}Successfully installed proxykey for ubuntu${reset}" true
     else
         echo "Installation canceled by user"
-    fi
+    fi 
 }
 
 repair_anydesk() {
-    echo -e "${bold_red}This will remove the anydesk directory. It won't install anydesk.${reset}"
+    echo -e "${bold_red}This will remove AnyDesk directory. This process doesn't install AnyDesk.${reset}"
     if confirm; then
-        sudo echo "Hello"
-        log "Successfully repaired anydesk" true
+        sudo rm -rf ~/.anydesk
+        log "Successfully repaired AnyDesk" true
     else
         echo "Installation canceled by user"
-    fi
+    fi 
 }
 
 install_canon_lbp246dw() {
@@ -142,8 +142,25 @@ install_canon_lbp246dw() {
         TAR_NAME="linux-UFRII-drv-v610-m17n-03.tar.gz"
         PRINTER_NAME="Canon_LBP246dw"
 
+        UBUNTU_VER=$(lsb_release -rs)
+        log "📌 Detected Ubuntu version: $UBUNTU_VER"
+
+        if apt-cache search libjpeg62-turbo | grep -q libjpeg62-turbo; then
+            JPEG_PKG="libjpeg62-turbo"
+        else
+            JPEG_PKG="libjpeg62"
+        fi
+
+        if apt-cache search system-config-printer | grep -q '^system-config-printer '; then
+            PRINTER_PKG="system-config-printer"
+        else
+            PRINTER_PKG="system-config-printer-gnome system-config-printer-common"
+        fi
+
+        log "📦 Installing required packages: $JPEG_PKG, $PRINTER_PKG ..."
         sudo apt update -y
-        sudo apt install -y libcups2 cups printer-driver-gutenprint csh libjpeg62-turbo avahi-utils system-config-printer
+        sudo apt install -y libcups2 cups printer-driver-gutenprint csh $JPEG_PKG avahi-utils $PRINTER_PKG
+
         sudo systemctl enable cups
         sudo systemctl start cups
 
@@ -198,7 +215,7 @@ execute_task() {
 check_dependency "curl" "wget" "unzip"
 
 PS3="Select option by number: "
-echo -e "${bold_red}This script is applicable for Ubuntu 22.04 (Dell and HP models)${reset}"
+echo -e "${bold_red}This script is applicable for Ubuntu 22.04/20.04 (Dell and HP models)${reset}"
 select option in "${tasks[@]}" "exit"
 do
     echo -e "\nYou have selected : $option\n"
